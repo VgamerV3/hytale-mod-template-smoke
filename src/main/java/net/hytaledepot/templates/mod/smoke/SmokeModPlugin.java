@@ -1,12 +1,10 @@
 package net.hytaledepot.templates.mod.smoke;
 
-import com.hypixel.hytale.protocol.GameMode;
 import com.hypixel.hytale.server.core.Message;
 import com.hypixel.hytale.server.core.command.system.CommandContext;
 import com.hypixel.hytale.server.core.command.system.basecommands.CommandBase;
 import com.hypixel.hytale.server.core.plugin.JavaPlugin;
 import com.hypixel.hytale.server.core.plugin.JavaPluginInit;
-import java.lang.reflect.Method;
 import javax.annotation.Nonnull;
 
 public final class SmokeModPlugin extends JavaPlugin {
@@ -19,44 +17,26 @@ public final class SmokeModPlugin extends JavaPlugin {
   @Override
   protected void setup() {
     service.onInitialize();
-    getCommandRegistry().registerCommand(new SmokeModPluginStatusCommand());
-    getLogger().atInfo().log("[SmokeModPlugin] setup complete");
+    getCommandRegistry().registerCommand(new SmokeStatusCommand());
+    getLogger().atInfo().log("[SmokeMod] setup complete");
   }
 
   @Override
   protected void shutdown() {
     service.onShutdown();
-    getLogger().atInfo().log("[SmokeModPlugin] shutdown complete");
+    getLogger().atInfo().log("[SmokeMod] shutdown complete");
   }
 
-  private String statusLine() {
-    try {
-      Method method = service.getClass().getMethod("describeStatus");
-      Object value = method.invoke(service);
-      return String.valueOf(value);
-    } catch (Exception ignored) {
-    }
-
-    try {
-      Method method = service.getClass().getMethod("diagnostics");
-      Object value = method.invoke(service);
-      return String.valueOf(value);
-    } catch (Exception ignored) {
-    }
-
-    return service.getClass().getSimpleName() + " loaded";
-  }
-
-  private final class SmokeModPluginStatusCommand extends CommandBase {
-    private SmokeModPluginStatusCommand() {
-      super("hdsmokemodstatus", "Shows runtime status for SmokeModPlugin.");
-    setAllowsExtraArguments(true);
-      this.setPermissionGroup(GameMode.Adventure);
+  private final class SmokeStatusCommand extends CommandBase {
+    private SmokeStatusCommand() {
+      super("hdsmokemodstatus", "Shows heartbeat and setup state for the smoke mod.");
+      setAllowsExtraArguments(true);
+      setPermissionGroups("hytale:Adventurer");
     }
 
     @Override
     protected void executeSync(@Nonnull CommandContext ctx) {
-      ctx.sendMessage(Message.raw("[SmokeModPlugin] " + statusLine()));
+      ctx.sendMessage(Message.raw("[SmokeMod] sender=" + ctx.sender().getUsername() + ", " + service.describeStatus()));
     }
   }
 }
